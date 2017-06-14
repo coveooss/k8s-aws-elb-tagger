@@ -1,6 +1,7 @@
 # K8S - AWS ELB Service Tagger
 
 ![Coveo](https://img.shields.io/badge/Coveo-awesome-f58020.svg)
+[![Build Status](https://travis-ci.org/coveo/k8s-aws-elb-tagger.svg?branch=master)](https://travis-ci.org/coveo/k8s-aws-elb-tagger)
 
 Manage AWS tags on Kubernetes created loadbalancer type services
 
