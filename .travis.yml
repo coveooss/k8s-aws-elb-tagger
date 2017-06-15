@@ -3,8 +3,10 @@ language: go
 go:
   - 1.8
 
-services:
-  - docker
+# services:
+#  - docker
+
+cache: vendor
 
 before_install:
   - go get -u github.com/golang/dep/cmd/dep
