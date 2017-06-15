@@ -3,9 +3,16 @@ language: go
 go:
   - 1.8
 
-sudo: false
+services:
+  - docker
+
 before_install:
   - go get -u github.com/golang/dep/cmd/dep
   - dep ensure
 
-script: make test
+jobs:
+  include:
+  - stage: build
+    script: make k8s-aws-elb-tagger-all
+  - stage: test
+    script: make test

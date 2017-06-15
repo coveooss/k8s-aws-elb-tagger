@@ -7,6 +7,14 @@ k8s-aws-elb-tagger: k8s-aws-elb-tagger.go
 k8s-aws-elb-tagger.linux.amd64: k8s-aws-elb-tagger.go
 	GOOS=linux GOARCH=amd64 go build -o $@ $<
 
+k8s-aws-elb-tagger.darwin.amd64: k8s-aws-elb-tagger.go
+	GOOS=darwin GOARCH=amd64 go build -o $@ $<
+
+k8s-aws-elb-tagger.windows.amd64: k8s-aws-elb-tagger.go
+	GOOS=windows GOARCH=amd64 go build -o $@ $<
+
+k8s-aws-elb-tagger-all: k8s-aws-elb-tagger.windows.amd64 k8s-aws-elb-tagger.linux.amd64 k8s-aws-elb-tagger.darwin.amd64
+
 .PHONY: test
 test: k8s-aws-elb-tagger
 	go test ./
