@@ -1,4 +1,4 @@
-MAINTAINER Pierre-Alexandre St-Jean <pa@stjean.me>
+MAINTAINER Pierre-Alexandre St-Jean <pastjean@coveo.com>
 
 FROM alpine
 

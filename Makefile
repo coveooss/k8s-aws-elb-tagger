@@ -1,14 +1,16 @@
 VERSION ?= 1.0.0
 REVISION ?= git-$(shell git rev-parse --short HEAD)
 
-k8s-aws-elb-tagger: cmd/k8s-aws-elb-tagger/main.go
-	go build -o k8s-aws-elb-tagger cmd/k8s-aws-elb-tagger/main.go
+k8s-aws-elb-tagger: k8s-aws-elb-tagger.go
+	go build -o $@ $<
 
-k8s-aws-elb-tagger.linux.amd64: cmd/k8s-aws-elb-tagger/main.go
-	GOOS=linux GOARCH=amd64 go build -o k8s-aws-elb-tagger.linux.amd64 cmd/k8s-aws-elb-tagger/main.go
+k8s-aws-elb-tagger.linux.amd64: k8s-aws-elb-tagger.go
+	GOOS=linux GOARCH=amd64 go build -o $@ $<
 
-test:
-	go list ./... | grep -v vendor | xargs go test
+.PHONY: test
+test: k8s-aws-elb-tagger
+	go test ./
+#	go list ./... | grep -v vendor | xargs go test
 
 .PHONY: docker
 docker: k8s-aws-elb-tagger.linux.amd64

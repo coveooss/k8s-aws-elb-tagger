@@ -3,9 +3,9 @@
 
 [[projects]]
   name = "cloud.google.com/go"
-  packages = ["compute/metadata","internal"]
-  revision = "2e6a95edb1071d750f6d7db777bf66cd2997af6c"
-  version = "v0.7.0"
+  packages = ["compute/metadata"]
+  revision = "e11d9d1a1722e191d3d017c08077f2c15189769a"
+  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/PuerkitoBio/purell"
@@ -22,8 +22,8 @@
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/elb","service/sts"]
-  revision = "47ba3b0518c83189f3a1c95d20fc22f267e02ed3"
-  version = "v1.8.41"
+  revision = "f44e6cf65ec77f9eab74e8f1ced546625bd3ad82"
+  version = "v1.8.42"
 
 [[projects]]
   branch = "master"
@@ -104,12 +104,6 @@
   revision = "f3f9494671f93fcff853e3c6e9e948b3eb71e590"
 
 [[projects]]
-  name = "github.com/go-stack/stack"
-  packages = ["."]
-  revision = "7a2f19628aabfe68f0766b59e74d6315f8347d22"
-  version = "v1.5.3"
-
-[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto","sortkeys"]
   revision = "100ba4e885062801d56799d78530b73b178a78f3"
@@ -124,7 +118,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["proto","ptypes/any"]
+  packages = ["proto"]
   revision = "e325f446bebc2998605911c0a2650d9920361d4a"
 
 [[projects]]
@@ -134,16 +128,10 @@
   revision = "24818f796faf91cd76ec7bddd72458fbced7a6c1"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/googleapis/gax-go"
-  packages = ["."]
-  revision = "84ed26760e7f6f80887a2fbfb50db3cc415d2cea"
-
-[[projects]]
-  branch = "master"
   name = "github.com/inconshreveable/log15"
-  packages = [".","term"]
-  revision = "39bacc234bf1afd0b68573e95b45871f67ba2cd4"
+  packages = ["."]
+  revision = "b105bd37f74e5d9dc7b6ad7806715c7a2b83fd3f"
+  version = "v2.11"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -172,8 +160,8 @@
 [[projects]]
   name = "github.com/mattn/go-colorable"
   packages = ["."]
-  revision = "d228849504861217f796da67fae4f6e347643f15"
-  version = "v0.0.7"
+  revision = "941b50ebc6efddf4c41c8e4537a5f68a4e686b24"
+  version = "v0.0.8"
 
 [[projects]]
   name = "github.com/mattn/go-isatty"
@@ -194,22 +182,10 @@
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "c605e284fe17294bda444b34710735b29d1a9d90"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/pressly/chi"
-  packages = ["."]
-  revision = "9435d858d175002354cd731211d97cb6ade7f58f"
-
-[[projects]]
-  branch = "master"
   name = "github.com/prometheus/client_golang"
   packages = ["prometheus","prometheus/promhttp"]
-  revision = "de4d4ffe63b9eff7f27484fdef6e421597e6abb4"
+  revision = "c5b7fccd204277076155f10851dad72b76a49317"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
@@ -221,7 +197,7 @@
   branch = "master"
   name = "github.com/prometheus/common"
   packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","model"]
-  revision = "13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207"
+  revision = "3233b24a36715a2fe36d162260457857a56d672d"
 
 [[projects]]
   branch = "master"
@@ -244,8 +220,8 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "dfe83d419c9403b40b19d08cdba2afec27b002f7"
+  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","lex/httplex"]
+  revision = "ddf80d0970594e2e4cccf5a98861cad3d9eaa4cd"
 
 [[projects]]
   branch = "master"
@@ -257,7 +233,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "0b25a408a50076fbbcae6b7ac0ea5fbb0b085e79"
+  revision = "fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a"
 
 [[projects]]
   branch = "master"
@@ -272,16 +248,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "google.golang.org/genproto"
-  packages = ["googleapis/rpc/status"]
-  revision = "aa2eb687b4d3e17154372564ad8d6bf11c3cf21f"
-
-[[projects]]
-  name = "google.golang.org/grpc"
-  packages = [".","codes","credentials","grpclb/grpc_lb_v1","grpclog","internal","keepalive","metadata","naming","peer","stats","status","tap","transport"]
-  revision = "d8960bd63c6743defa6d54926e5edfa8e4a28e43"
-  version = "v1.4.0"
+  name = "gopkg.in/inconshreveable/log15.v2"
+  packages = ["stack","term"]
+  revision = "dc7890abeaadcb6a79a9a5ee30bc1897bbf97713"
+  version = "v2.10"
 
 [[projects]]
   name = "gopkg.in/inf.v0"
@@ -304,6 +274,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c3d5a71e7b320bc977d573ca0342fbb195f334663277822834ef852ff7f8c55f"
+  inputs-digest = "25284d2812bdaaa56cf99e74717e4567244868cf09a1a6d6b4fe6149d76e96c1"
   solver-name = "gps-cdcl"
   solver-version = 1
