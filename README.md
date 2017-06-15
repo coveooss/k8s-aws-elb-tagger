@@ -46,6 +46,16 @@ aws-tag-key/1=coveo:owner
 aws-tag-value/1=johndoe@example.com
 ```
 
+#### How 
+
+```sh
+# this way
+kubectl annotate  service/<servicename> aws-tag/owner="John Doe"
+# or this way
+kubectl annotate  service/<servicename> aws-tag-key/1="coveo:owner"
+kubectl annotate  service/<servicename> aws-tag-value/1="johndoe@example.com"
+```
+
 #### In your service spec
 
 To your load balancer service spec:

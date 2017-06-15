@@ -4,7 +4,6 @@ import (
 	"expvar"
 	"flag"
 	"fmt"
-	"net"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/inconshreveable/log15"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"k8s.io/client-go/kubernetes"
@@ -103,7 +103,6 @@ func main() {
 	port := GetenvOrDefault("PORT", DefaultPort)
 	logger.Info("Server starting", "port", port)
 	http.ListenAndServe(":"+port, Recoverer(logger)(m))
-	// FIXME: Implement graceful shutdown
 }
 
 func GetenvOrDefault(env, def string) string {
@@ -135,58 +134,65 @@ func (r *tagRefresher) Start() {
 func (r *tagRefresher) refreshTags() error {
 	services, err := r.k8sClient.CoreV1().Services("").List(v1.ListOptions{})
 	if err != nil {
-		r.logger.Error("Error retrieving services on cluster", "err", err)
-	} else {
+		return errors.Wrap(err, "Error retrieving services from the Kubernetes cluster")
+	}
 
-		serviceTagsToApply := map[string]map[string]string{}
+	serviceTagsToApply := map[string]map[string]string{}
 
-		for _, service := range services.Items {
-			if service.Spec.Type == v1.ServiceTypeLoadBalancer {
+	for _, service := range services.Items {
+		if service.Spec.Type != v1.ServiceTypeLoadBalancer {
+			continue
+		}
+		awsTags := AWSTagsFromK8SAnnotations(service.Annotations)
 
-				tagsToApply := tagsToApplyFromAnnotations(service.Annotations)
-				if len(tagsToApply) != 0 {
-					// Get the ingress endpoints then tag the associated ELB accordingly
-					for _, ingress := range service.Status.LoadBalancer.Ingress {
-						loadbalancerHostname, err := LoadBalancerNameFromHostname(ingress.Hostname)
-						if err != nil {
-							r.logger.Error("Error parsing the loadbalancer Hostname", "err", err)
-						} else {
-							serviceTagsToApply[loadbalancerHostname] = tagsToApply
-						}
-					}
-				}
-			}
+		if len(awsTags) <= 0 {
+			continue
 		}
 
-		r.logger.Info(fmt.Sprintf("%d Elbs to manage", len(serviceTagsToApply)))
-
-		// TODO: Ideally we should only change tags on elb which needs new tag, to do that we should query
-		// the elb tags list before hand
-		for elbName, tags := range serviceTagsToApply {
-			// FIXME: This we can do in parallel as long as we dont get throttled
-			r.logger.Info("Applying tag to elb", "elb", elbName, "tags", tags)
-
-			awsTags := []*elb.Tag{}
-			for k, v := range tags {
-				awsTags = append(awsTags, &elb.Tag{
-					Key:   &k,
-					Value: &v,
-				})
-			}
-
-			addTagInput := &elb.AddTagsInput{
-				LoadBalancerNames: []*string{&elbName},
-				Tags:              awsTags,
-			}
-			if r.dryRun {
-				r.logger.Info("Tag To be added", "addTagInput", addTagInput)
+		// Get the ingress endpoints then tag the associated ELB accordingly
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			elbName, err := AWSELBNameFromHostname(ingress.Hostname)
+			if err != nil {
+				r.logger.Error("Error parsing the loadbalancer Hostname", "hostname", ingress.Hostname, "err", err)
 			} else {
-				r.elbAPI.AddTags(addTagInput)
+				serviceTagsToApply[elbName] = awsTags
 			}
+
 		}
 	}
 
+	r.logger.Info(fmt.Sprintf("%d Elbs to manage", len(serviceTagsToApply)))
+
+	// TODO: Ideally we should only change tags on elb which needs new tag, to do that we should query
+	// the elb tags list before hand and filter on that
+	for elbName, tags := range serviceTagsToApply {
+		r.applyTagsToELB(elbName, tags)
+	}
+
 	return nil
+}
+
+func (r *tagRefresher) applyTagsToELB(elbName string, tags map[string]string) {
+	// FIXME: This we can do in parallel as long as we dont get throttled
+	r.logger.Info("Applying tag to elb", "elb", elbName, "tags", tags)
+
+	awsTags := []*elb.Tag{}
+	for k, v := range tags {
+		awsTags = append(awsTags, &elb.Tag{
+			Key:   &k,
+			Value: &v,
+		})
+	}
+
+	addTagInput := &elb.AddTagsInput{
+		LoadBalancerNames: []*string{&elbName},
+		Tags:              awsTags,
+	}
+	if r.dryRun {
+		r.logger.Info("Tag To be added", "addTagInput", addTagInput)
+	} else {
+		r.elbAPI.AddTags(addTagInput)
+	}
 }
 
 func Recoverer(logger log15.Logger) func(next http.Handler) http.Handler {
@@ -194,37 +200,33 @@ func Recoverer(logger log15.Logger) func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				rvr := recover()
-				if rvr == nil {
-					return
+				if rvr != nil {
+					logger.Error(fmt.Sprintf("PANIC: %v", rvr), "panic", rvr, "stack", string(debug.Stack()))
+					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				}
-
-				logger.Error(fmt.Sprintf("PANIC: %v", rvr), "panic", rvr, "stack", string(debug.Stack()))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}()
-
 			next.ServeHTTP(w, r)
 		}
-
 		return http.HandlerFunc(fn)
 	}
 }
 
-func tagsToApplyFromAnnotations(annotations map[string]string) map[string]string {
+func AWSTagsFromK8SAnnotations(annotations map[string]string) map[string]string {
 	tagsToApply := map[string]string{}
 
 	splitKeys := map[string]string{}
 	splitValues := map[string]string{}
 
 	for k, v := range annotations {
-		if strings.HasPrefix(k, ServiceAnnotationTagPrefix) {
+		if strings.HasPrefix(k, ServiceAnnotationTagPrefix) && len(k) > len(ServiceAnnotationTagPrefix) {
 			tagsToApply[k[len(ServiceAnnotationTagPrefix):]] = v
 		}
 
-		if strings.HasPrefix(k, ServiceAnnotationTagKeyPrefix) {
+		if strings.HasPrefix(k, ServiceAnnotationTagKeyPrefix) && len(k) > len(ServiceAnnotationTagKeyPrefix) {
 			splitKeys[k[len(ServiceAnnotationTagKeyPrefix):]] = v
 		}
 
-		if strings.HasPrefix(k, ServiceAnnotationTagValuePrefix) {
+		if strings.HasPrefix(k, ServiceAnnotationTagValuePrefix) && len(k) > len(ServiceAnnotationTagValuePrefix) {
 			splitValues[k[len(ServiceAnnotationTagValuePrefix):]] = v
 		}
 	}
@@ -247,9 +249,7 @@ func kubernetesConfig() (*rest.Config, error) {
 			return nil, fmt.Errorf("Unable unable to load local proxy cluster configuration, KUBERNETES_HTTP_HOST & KUBERNETES_HTTP_PORT must be defined or if running in cluster KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT")
 		}
 
-		config = &rest.Config{
-			Host: "http://" + net.JoinHostPort(host, port),
-		}
+		config = &rest.Config{Host: fmt.Sprintf("http://%s:%s", host, port)}
 	}
 	return config, nil
 }
@@ -271,8 +271,8 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Ok"))
 }
 
-// LoadBalancerNameFromHostname returns the elb from the hostname
-func LoadBalancerNameFromHostname(hostname string) (string, error) {
+// AWSELBNameFromHostname returns the elb from the hostname
+func AWSELBNameFromHostname(hostname string) (string, error) {
 	hostnameSegments := strings.Split(hostname, "-")
 	if len(hostnameSegments) < 2 {
 		return "", fmt.Errorf("%s is not a valid ELB hostname", hostname)
