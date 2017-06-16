@@ -15,7 +15,7 @@ jobs:
     script: make test
   - stage: docker
     script: make docker
-  - stage: deploy (release) to github
+  - stage: deploy release to github
     script: skip
     deploy:
       skip_cleanup: true
@@ -29,9 +29,9 @@ jobs:
       on:
         repo: coveo/k8s-aws-elb-tagger
         tags: true
-    - stage: deploy (master) to docker
+    - stage: deploy master to docker
       script: skip
-    - stage: deploy (release) to docker
+    - stage: deploy release to docker
       script: skip
 
 notifications:
