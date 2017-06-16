@@ -1,0 +1,5 @@
+## Gopkg.toml example (these lines may be deleted)
+
+[[constraint]]
+  version = "2.0.0"
+  name = "k8s.io/client-go"

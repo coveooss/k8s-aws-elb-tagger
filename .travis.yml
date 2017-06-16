@@ -1,0 +1,54 @@
+language: go
+go:
+- 1.8
+
+services:
+- docker
+
+cache: vendor
+
+env:
+  global:
+  - secure: "hmxTccomMnTWam0rr+dRSHjbPrZKAQamU0s18Fq/mHF3AthlcNH9aAvnDXC6xZp9XL/WeVQmHO3MyZ0S+vjBTgK/SvONll0hcpYuCIGuXYxdllikX4AMBalufH+NSg2XUYI+OYDaKMUHQW/aP26/UdrRevuYs+18SArRxu6yMhtqkKwchHMWrdRYMygoFCuH3jrK8YG5n/vPRzytRdEEY/Mcuv1Mzq/VmtEnR/LCcnLMGHfSMbsy/k8TH+czvW1+I+of7vlsHuYzulExeOzHJzHt8d+9n8e14u8E3G7nWvcAVeL00oHgFHhjUW3+utBB6nhKhpZ+BMVdWijlma9JL/svVsB1DAdP6Zau8dHsGv/bZDujMNuMKlVKc402CEQAXsAg8VUYzfIkoGgMc3dYn6WXjKHoBRnPN4HGZ4Q8ZyK7ExkS2KAydTrmQTnBq49kngdkyg9xAWZE03VH8AJbRSdlA6SPbtEWikcydS/odTAipvliTqk73NCCUmHEOtDn/11gQTqc1WPxNg4g3bZFXoNH97EqPMzqWkv2nlRaAqbRPku4XvChHLhHVxZVoZl/0vPcSSb3ZsS0/xZDCKd5TZLQNhX1Yc56/blsztdG55FGP+KaehE1a8vUi8ytczxv6ZKuM4XFV2m4BHzxoulUZRhB/8p99h80YDYnwQGUF5k="
+
+before_install:
+- go get -u github.com/golang/dep/cmd/dep
+- dep ensure
+
+script:
+- make k8s-aws-elb-tagger-all
+- make test
+- make docker
+
+before_deploy: docker login -u="coveo+k8s_aws_elb_tagger" -p="$QUAY_TOKEN" quay.io
+
+deploy:
+- provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: T7jqzA4hK+gg15l+OLJISPB/fduGVlbKCCHD0vvm9NdxAOpdZFjvI2Jm1vE4WITb/elkI3M20QMBYN253r80Up0AD5KYQvCkQac4YxM3yEb9jOxN18vL2enZEtN478bvwuXeY6q2hIt+memxAY9eBz2LitWIlCcr5peDxEzuMf1XVm95U1510HyeyMNU93aRMsBLXQ1J8p4oeRtB8MiYSP41a2sPmYjNy2jY0HNpTxrd+E6TbStu2ANQcGbK+7jliLaFI0K95vZRDoFi64aoL7uiwHeLMay3+I55XdcyxhtViPVUk+j0qBUKgTibXP8XzunJfD5H/Alq3YCQiBQd5KqiVO0zZhPNQsiIMYt9iKgECHMxCRiyDFC9hS4m1FqWuJwAUTVsCL+X6/Y7FinFhvje74hafv4isS+szcTJoyLWa81djYLceV00AIzC8roS4vdXPuN4gtVXJMlLAENRaksBRnvORn5TOviahKtxH3EqZpqPlBwcbGrOI/9F46DmBJbJEVxwLTBDj8JdyHOeMHhFED3MWzj9DwTSAYwWvD4aM+nCR/1KU7iGyJFhmmfBOD0eRUJtGqf4enZn6gvfpz390XjFlTUDqQr4XBB5q6T/4I+MnIImoI3+8Yfi+bJzum8aFUagGWhYMf86lx2WCuMPBNy4NOnvGMnoZKXGH4s=
+  file: 
+  - k8s-aws-elb-tagger.linux.amd64
+  - k8s-aws-elb-tagger.darwin.amd64
+  - k8s-aws-elb-tagger.windows.amd64
+  on:
+    repo: coveo/k8s-aws-elb-tagger
+    tags: true
+- provider: script
+  script: make docker-push
+  on:
+    skip_cleanup: true
+    repo: coveo/k8s-aws-elb-tagger
+    branches: master
+- provider: script
+  script: make docker-push-release
+  skip_cleanup: true
+  on:
+    repo: coveo/k8s-aws-elb-tagger
+    tags: true
+
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
