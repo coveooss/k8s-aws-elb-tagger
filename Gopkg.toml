@@ -1,17 +1,5 @@
 ## Gopkg.toml example (these lines may be deleted)
 
-#[[constraint]]
-#  branch = "master"
-#  name = "github.com/inconshreveable/log15"
-
-#[[constraint]]
-#  branch = "master"
-#  name = "github.com/prometheus/client_golang"
-
-#[[constraint]]
-#  branch = "master"
-#  name = "github.com/thoas/stats"
-
 [[constraint]]
   version = "2.0.0"
   name = "k8s.io/client-go"
