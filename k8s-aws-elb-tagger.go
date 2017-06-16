@@ -77,7 +77,6 @@ func main() {
 	m := http.NewServeMux()
 	m.HandleFunc("/", homeHandler)
 	m.HandleFunc("/healthz", healthHandler)
-	//m.Handle("/debug", Profiler())
 	m.Handle("/metrics", promhttp.HandlerFor(prometheusRegistry, promhttp.HandlerOpts{}))
 	m.HandleFunc("/debug/pprof/", pprof.Index)
 	m.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
@@ -246,7 +245,7 @@ func kubernetesConfig() (*rest.Config, error) {
 		host, port := os.Getenv("KUBERNETES_HTTP_HOST"), os.Getenv("KUBERNETES_HTTP_PORT")
 
 		if len(host) == 0 || len(port) == 0 {
-			return nil, fmt.Errorf("Unable unable to load local proxy cluster configuration, KUBERNETES_HTTP_HOST & KUBERNETES_HTTP_PORT must be defined or if running in cluster KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT")
+			return nil, fmt.Errorf("Unable to load local proxy cluster configuration, KUBERNETES_HTTP_HOST & KUBERNETES_HTTP_PORT must be defined or if running in cluster KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT")
 		}
 
 		config = &rest.Config{Host: fmt.Sprintf("http://%s:%s", host, port)}
