@@ -1,20 +1,34 @@
 language: go
-
 go:
-  - 1.8
-
-# services:
-#  - docker
-
+- 1.8
+services:
+- docker
 cache: vendor
-
 before_install:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure
-
+- go get -u github.com/golang/dep/cmd/dep
+- dep ensure
 jobs:
   include:
   - stage: build
     script: make k8s-aws-elb-tagger-all
   - stage: test
     script: make test
+  - stage: deploy to github-releases
+    script: "/bin/true"
+    deploy:
+      skip_cleanup: true
+      provider: releases
+      api_key:
+        secure: T7jqzA4hK+gg15l+OLJISPB/fduGVlbKCCHD0vvm9NdxAOpdZFjvI2Jm1vE4WITb/elkI3M20QMBYN253r80Up0AD5KYQvCkQac4YxM3yEb9jOxN18vL2enZEtN478bvwuXeY6q2hIt+memxAY9eBz2LitWIlCcr5peDxEzuMf1XVm95U1510HyeyMNU93aRMsBLXQ1J8p4oeRtB8MiYSP41a2sPmYjNy2jY0HNpTxrd+E6TbStu2ANQcGbK+7jliLaFI0K95vZRDoFi64aoL7uiwHeLMay3+I55XdcyxhtViPVUk+j0qBUKgTibXP8XzunJfD5H/Alq3YCQiBQd5KqiVO0zZhPNQsiIMYt9iKgECHMxCRiyDFC9hS4m1FqWuJwAUTVsCL+X6/Y7FinFhvje74hafv4isS+szcTJoyLWa81djYLceV00AIzC8roS4vdXPuN4gtVXJMlLAENRaksBRnvORn5TOviahKtxH3EqZpqPlBwcbGrOI/9F46DmBJbJEVxwLTBDj8JdyHOeMHhFED3MWzj9DwTSAYwWvD4aM+nCR/1KU7iGyJFhmmfBOD0eRUJtGqf4enZn6gvfpz390XjFlTUDqQr4XBB5q6T/4I+MnIImoI3+8Yfi+bJzum8aFUagGWhYMf86lx2WCuMPBNy4NOnvGMnoZKXGH4s=
+      file: 
+      - k8s-aws-elb-tagger.linux.amd64
+      - k8s-aws-elb-tagger.darwin.amd64
+      - k8s-aws-elb-tagger.windows.amd64
+      on:
+        repo: coveo/k8s-aws-elb-tagger
+        tags: true
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
