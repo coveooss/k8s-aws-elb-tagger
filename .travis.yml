@@ -29,10 +29,10 @@ jobs:
       on:
         repo: coveo/k8s-aws-elb-tagger
         tags: true
-    - stage: deploy master to docker
-      script: skip
-    - stage: deploy release to docker
-      script: skip
+  - stage: deploy master to docker
+    script: skip
+  - stage: deploy release to docker
+    script: skip
 
 notifications:
   email:
