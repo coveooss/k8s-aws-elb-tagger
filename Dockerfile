@@ -1,6 +1,5 @@
-MAINTAINER Pierre-Alexandre St-Jean <pastjean@coveo.com>
-
 FROM alpine
+MAINTAINER Pierre-Alexandre St-Jean <pastjean@coveo.com>
 
 RUN apk --update upgrade && \
     apk add curl ca-certificates && \
