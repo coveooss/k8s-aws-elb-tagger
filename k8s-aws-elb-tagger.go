@@ -190,7 +190,10 @@ func (r *tagRefresher) applyTagsToELB(elbName string, tags map[string]string) {
 	if r.dryRun {
 		r.logger.Info("Tag To be added", "addTagInput", addTagInput)
 	} else {
-		r.elbAPI.AddTags(addTagInput)
+		out, err := r.elbAPI.AddTags(addTagInput)
+		if err != nil {
+			r.logger.Error("Error adding tags", "elb", elbName, "err", err, "out", out.String())
+		}
 	}
 }
 
