@@ -18,7 +18,7 @@ k8s-aws-elb-tagger-all: k8s-aws-elb-tagger.windows.amd64 k8s-aws-elb-tagger.linu
 
 .PHONY: test
 test: k8s-aws-elb-tagger
-	go test ./
+	go test -cover -v ./
 #	go list ./... | grep -v vendor | xargs go test
 
 .PHONY: docker
