@@ -13,8 +13,10 @@ jobs:
     script: make k8s-aws-elb-tagger-all
   - stage: test
     script: make test
-  - stage: deploy to github-releases
-    script: "/bin/true"
+  - stage: docker
+    script: make docker
+  - stage: deploy (release) to github
+    script: skip
     deploy:
       skip_cleanup: true
       provider: releases
@@ -27,6 +29,10 @@ jobs:
       on:
         repo: coveo/k8s-aws-elb-tagger
         tags: true
+    - stage: deploy (master) to docker
+      script: skip
+    - stage: deploy (release) to docker
+      script: skip
 
 notifications:
   email:

@@ -1,5 +1,6 @@
-VERSION ?= 1.0.0
+VERSION ?= $(TRAVIS_TAG)
 REVISION ?= git-$(shell git rev-parse --short HEAD)
+DOCKER_REPOSITORY ?= quay.io/coveo/k8s-aws-elb-tagger
 
 k8s-aws-elb-tagger: k8s-aws-elb-tagger.go
 	go build -o $@ $<
@@ -22,10 +23,12 @@ test: k8s-aws-elb-tagger
 
 .PHONY: docker
 docker: k8s-aws-elb-tagger.linux.amd64
-	docker build -t quay.io/coveo/k8s-aws-elb-tagger:$(REVISION) .
+	docker build -t $(DOCKER_REPOSITORY):$(REVISION) .
 
 .PHONY: docker-push
 docker-push: docker
-	docker tag quay.io/coveo/k8s-aws-elb-tagger:$(REVISION) quay.io/coveo/k8s-aws-elb-tagger:$(VERSION)
-	docker push quay.io/coveo/k8s-aws-elb-tagger:$(REVISION)
-	docker push quay.io/coveo/k8s-aws-elb-tagger:$(VERSION)
+	docker push $(DOCKER_REPOSITORY):$(REVISION)
+
+docker-push-release: docker
+	docker tag $(DOCKER_REPOSITORY):$(REVISION) $(DOCKER_REPOSITORY):$(VERSION)
+	docker push $(DOCKER_REPOSITORY):$(VERSION)
