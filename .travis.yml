@@ -35,14 +35,14 @@ deploy:
     repo: coveo/k8s-aws-elb-tagger
     tags: true
 - provider: script
+  skip_cleanup: true
   script: make docker-push
   on:
-    skip_cleanup: true
     repo: coveo/k8s-aws-elb-tagger
     branches: master
 - provider: script
-  script: make docker-push-release
   skip_cleanup: true
+  script: make docker-push-release
   on:
     repo: coveo/k8s-aws-elb-tagger
     tags: true
