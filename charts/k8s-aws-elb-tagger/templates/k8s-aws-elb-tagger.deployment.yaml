@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-aws-elb-tagger
+  labels:
+    app: k8s-aws-elb-tagger
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8s-aws-elb-tagger
+      annotations:
+        iam.amazonaws.com/role: {{ .Values.roleName }}
+    spec:
+      serviceAccountName: k8s-aws-elb-tagger
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          name: k8s-aws-elb-tagger
+          resources:
+            limits:
+              cpu: 50m
+              memory: 50Mi

@@ -2,7 +2,7 @@
 
 vendor/*
 
-k8s-aws-elb-tagger
-k8s-aws-elb-tagger.darwin.amd64
-k8s-aws-elb-tagger.windows.amd64
-k8s-aws-elb-tagger.linux.amd64
+/k8s-aws-elb-tagger
+/k8s-aws-elb-tagger.darwin.amd64
+/k8s-aws-elb-tagger.windows.amd64
+/k8s-aws-elb-tagger.linux.amd64

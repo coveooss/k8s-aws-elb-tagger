@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Tags AWS ELBs based on k8s LoadBalancer services
+name: k8s-elb-tagger
+version: 1.0.0

@@ -1,0 +1,7 @@
+
+image:
+  repository: quay.io/coveo/k8s-aws-elb-tagger
+  tag: v1.0.0
+
+# roleName is the role that kube2iam will use to assume for this application
+roleName: ""
