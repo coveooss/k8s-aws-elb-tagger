@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/inconshreveable/log15"
@@ -60,7 +61,7 @@ func main() {
 	prometheusRegistry.MustRegister(prometheus.NewGoCollector())
 
 	// AWS initialization
-	sess := session.Must(session.NewSession())
+	sess := session.Must(session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true)))
 	elbAPI := elb.New(sess)
 
 	// Kubernetes initialization
@@ -160,8 +161,6 @@ func (r *tagRefresher) refreshTags() error {
 		}
 	}
 
-	r.logger.Info(fmt.Sprintf("%d Elbs to manage", len(serviceTagsToApply)))
-
 	// TODO: Ideally we should only change tags on elb which needs new tag, to do that we should query
 	// the elb tags list before hand and filter on that
 	for elbName, tags := range serviceTagsToApply {
@@ -172,9 +171,6 @@ func (r *tagRefresher) refreshTags() error {
 }
 
 func (r *tagRefresher) applyTagsToELB(elbName string, tags map[string]string) {
-	// FIXME: This we can do in parallel as long as we dont get throttled
-	r.logger.Info("Applying tag to elb", "elb", elbName, "tags", tags)
-
 	awsTags := []*elb.Tag{}
 	for k, v := range tags {
 		awsTags = append(awsTags, &elb.Tag{
@@ -268,7 +264,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	// FIXME: Do a real health check
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Ok"))
 }
