@@ -1,5 +1,10 @@
 # K8S - AWS ELB Service Tagger
 
+```
+DEPRECATED AS OF kubernetes 1.7
+this has been replaced by:  `service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags`
+```
+
 ![Coveo](https://img.shields.io/badge/Coveo-awesome-f58020.svg)
 [![Build Status](https://travis-ci.org/coveo/k8s-aws-elb-tagger.svg?branch=master)](https://travis-ci.org/coveo/k8s-aws-elb-tagger)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveo/k8s-aws-elb-tagger)](https://goreportcard.com/report/github.com/coveo/k8s-aws-elb-tagger)
